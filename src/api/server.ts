@@ -7,6 +7,8 @@ import { envSchema } from "./config/env";
 import checkApiKey from "./middlewares/api_key.middleware";
 import { registerRoutes } from "./routes/register.route";
 
+export let env: any;
+
 export async function server() {
   const app = Fastify({
     logger: {
@@ -40,6 +42,8 @@ export async function server() {
       });
     }
   );
+
+  env = app.getEnvs();
 
   registerRoutes(app);
 
