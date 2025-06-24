@@ -11,6 +11,10 @@ container.register("UserService", {
   useClass: UserService,
 });
 
+container.register("UserService", {
+  useClass: UserService,
+});
+
 // //repository registation
 // container.register("UserRepository", {
 //   useClass: UserRepository,
