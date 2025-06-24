@@ -10,16 +10,23 @@ import { User } from "@/domain/entities/user.entity";
 import { userError } from "@/domain/messages/error/user.error";
 import { IUserService } from "@/domain/interface/service/user.service.interface";
 import { IUserRepository } from "@/domain/interface/repositories/user.repository.interface";
+import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";
+import { ISessionService } from "@/domain/interface/service/session.service.interface";
 
 @injectable()
 export class UserService implements IUserService {
   constructor(
     @inject("UserRepository")
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
+    @inject("UserRepository")
+    private cryptoService: ICryptoService,
+    @inject("UserRepository")
+    private sessionService: ISessionService
   ) {}
   oAuthSignUpOrLogin(user: User): Promise<User | null> {
     throw new Error("Method not implemented.");
   }
+
   get({
     userIds,
     excludeUserIds,
@@ -68,24 +75,22 @@ export class UserService implements IUserService {
         throw new UnprocessableEntityError(userError.PASSWORD_REQURED);
       }
 
-      const encryptedPassword = this.authService.encryptPassword(user.password);
+      const hashedPassword = await this.cryptoService.hashPassword(user.password);
 
-      if (user.profilePicture) {
-        const [profileUrl] = await this.storageRepository.uploadFiles(
-          user._id,
-          [user.profilePicture]
-        );
-        user.profilePicture = profileUrl.url;
-      }
+      // if (user.profilePicture) {
+      //   const [profileUrl] = await this.storageRepository.uploadFiles(
+      //     user._id,
+      //     [user.profilePicture]
+      //   );
+      //   user.profilePicture = profileUrl.url;
+      // }
 
-      user.password = encryptedPassword;
+      user.password = hashedPassword;
     }
 
     const newUser = await this.userRepository.create(user);
 
-    const userWithSession = await this.createSession(newUser);
-
-    return userWithSession;
+    return newUser;
   }
 
   async login(email: string, password: string): Promise<User> {
@@ -99,7 +104,7 @@ export class UserService implements IUserService {
       throw new NotFoundError(userError.LOGIN_GOOGLE);
     }
 
-    const isValidPassword = this.authService.verifyPassword(
+    const isValidPassword = this.cryptoService.verifyPassword(
       password,
       user.password
     );
@@ -108,13 +113,9 @@ export class UserService implements IUserService {
       throw new UnauthorizedError(userError.INVALID_CREDENCIAL);
     }
 
-    const userWithSession = await this.createSession(user);
+    const userWithSession = await this.sessionService.(user);
 
     return userWithSession;
-  }
-
-  logout(userId: string, sessionId: string): Promise<User> {
-    return this.userRepository.removeSession(userId, sessionId);
   }
 
   async update(
