@@ -1,10 +1,8 @@
 import { JwtPayload } from "@/domain/entities/jwt.entity";
+import { Tokens } from "@/domain/interface/types/crypto.types";
 
 export interface ICryptoService {
-  generateSessionTokens(userId: string): {
-    accesstoken: string;
-    refreshtoken: string;
-  };
+  generateSessionTokens(userId: string): Tokens;
 
   verifySessionToken(token: string, isRefresh: boolean): JwtPayload;
 

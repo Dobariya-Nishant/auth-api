@@ -1,11 +1,7 @@
-import { JwtPayload } from "@/domain/entities/jwt.entity";
+import { Tokens } from "../types/crypto.types";
 
 export interface IAuthService {
-  createSessionToken(tokenPayload: JwtPayload): string;
+  login(email: string, password: string): Promise<Tokens>;
 
-  verifySessionToken(token: string): JwtPayload;
-
-  encryptPassword(password: string): string;
-
-  verifyPassword(password: string, signature: string): Boolean;
+  logout(userId: string, token: string): Promise<void>;
 }

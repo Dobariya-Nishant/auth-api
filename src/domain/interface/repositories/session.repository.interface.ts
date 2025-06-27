@@ -1,31 +1,14 @@
+import { MultiSessionQuery, SessionQuery } from "../types/session.types";
 import { Session } from "@/domain/entities/session.enttity";
 
 export interface ISessionRepository {
-  get({
-    limit,
-    createdAt,
-    userId,
-  }: {
-    limit?: number;
-    createdAt?: Date;
-    userId: string;
-  }): Promise<Session[]>;
+  get(query: MultiSessionQuery): Promise<Session[]>;
 
-  getOne({
-    userId,
-    token,
-  }: {
-    userId?: string;
-    token?: string;
-  }): Promise<Session>;
+  getOne(query: SessionQuery): Promise<Session | null>;
 
-  create(session: Session): Promise<Session>;
+  create(user: Session): Promise<Session>;
 
-  delete({
-    token,
-    userId,
-  }: {
-    token: string;
-    userId: string;
-  }): Promise<Session>;
+  refresh(query: SessionQuery, token: string): Promise<Session | null>;
+
+  delete(query: SessionQuery): Promise<Session | null>;
 }

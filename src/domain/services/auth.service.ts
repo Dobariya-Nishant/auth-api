@@ -1,14 +1,20 @@
 import { inject, injectable } from "tsyringe";
 import { IUserService } from "@/domain/interface/service/user.service.interface";
-import { NotFoundError, UnauthorizedError } from "../errors/app-errors";
-import { userError } from "../messages/error/user.error";
-import { AuthTypeEnum } from "../enum/user.enum";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/domain/errors/app-errors";
+import { userError } from "@/domain/messages/error/user.error";
+import { AuthTypeEnum } from "@/domain/enum/user.enum";
 import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";
 import { ISessionService } from "@/domain/interface/service/session.service.interface";
 import { Tokens } from "@/domain/interface/types/crypto.types";
+import { IAuthService } from "@/domain/interface/service/auth.service.interface";
+import { User } from "../entities/user.entity";
 
 @injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     @inject("UserService")
     private userService: IUserService,
@@ -23,6 +29,31 @@ export class AuthService {
 
     if (!user?._id) {
       throw new NotFoundError(userError.NOT_FOUND);
+    }
+
+    if (user.authType == AuthTypeEnum.GOOGLE || !user?.password) {
+      throw new NotFoundError(userError.LOGIN_GOOGLE);
+    }
+
+    const isValidPassword = this.cryptoService.verifyPassword(
+      password,
+      user.password
+    );
+
+    if (!isValidPassword) {
+      throw new UnauthorizedError(userError.INVALID_CREDENCIAL);
+    }
+
+    const tokens = await this.sessionService.create(user);
+
+    return tokens;
+  }
+
+  async SignUp(user: User): Promise<Tokens> {
+    const isUser = await this.userService.isUser({ email: user.email });
+
+    if (isUser) {
+      throw new ConflictError(userError.ALREADY_EXIST);
     }
 
     if (user.authType == AuthTypeEnum.GOOGLE || !user?.password) {

@@ -6,6 +6,7 @@ import fastifyEnv from "@fastify/env";
 import { envSchema } from "./config/env";
 import checkApiKey from "./middlewares/api_key.middleware";
 import { registerRoutes } from "./routes/register.route";
+import { dbConnect } from "@/infrastructure/db/mongodb/client";
 
 export let env: any;
 
@@ -48,8 +49,8 @@ export async function server() {
   registerRoutes(app);
 
   try {
-    //@ts-ignore
-    await app.listen({ port: app.config.PORT });
+    await dbConnect();
+    await app.listen({ port: env.PORT });
   } catch (err) {
     app.log.error(err);
     process.exit(1);

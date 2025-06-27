@@ -2,7 +2,6 @@ import { inject, injectable } from "tsyringe";
 import {
   ConflictError,
   NotFoundError,
-  UnauthorizedError,
   UnprocessableEntityError,
 } from "@/domain/errors/app-errors";
 import { AuthTypeEnum } from "@/domain/enum/user.enum";
@@ -11,7 +10,6 @@ import { userError } from "@/domain/messages/error/user.error";
 import { IUserService } from "@/domain/interface/service/user.service.interface";
 import { IUserRepository } from "@/domain/interface/repositories/user.repository.interface";
 import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";
-import { ISessionService } from "@/domain/interface/service/session.service.interface";
 
 @injectable()
 export class UserService implements IUserService {
@@ -19,42 +17,20 @@ export class UserService implements IUserService {
     @inject("UserRepository")
     private userRepository: IUserRepository,
     @inject("UserRepository")
-    private cryptoService: ICryptoService,
-    @inject("UserRepository")
-    private sessionService: ISessionService
+    private cryptoService: ICryptoService
   ) {}
-  oAuthSignUpOrLogin(user: User): Promise<User | null> {
-    throw new Error("Method not implemented.");
-  }
 
-  get({
-    userIds,
-    excludeUserIds,
-    createdAt,
-  }: {
-    userIds?: Array<string>;
-    excludeUserIds?: Array<string>;
-    createdAt?: Date;
-  }): Promise<User[]> {
+  get({ userIds, lastId }: MultiUserQuery): Promise<User[]> {
     const limit = 20;
     return this.userRepository.get({
       limit,
-      createdAt,
+      lastId,
       userIds,
-      excludeUserIds,
     });
   }
 
-  async getOne({
-    email,
-    userId,
-    userName,
-  }: {
-    email?: string;
-    userId?: string;
-    userName?: string;
-  }): Promise<User> {
-    const user = await this.userRepository.getOne({ email, userId, userName });
+  async getOne(query: UserQuery): Promise<User> {
+    const user = await this.userRepository.getOne(query);
 
     if (!user) {
       throw new NotFoundError(userError.NOT_FOUND);
@@ -64,7 +40,10 @@ export class UserService implements IUserService {
   }
 
   async create(user: User): Promise<User> {
-    const isExist = await this.isUser(user.email, user.userName);
+    const isExist = await this.isUser({
+      email: user.email,
+      userName: user.userName,
+    });
 
     if (isExist) {
       throw new ConflictError(userError.ALREADY_EXIST);
@@ -75,15 +54,9 @@ export class UserService implements IUserService {
         throw new UnprocessableEntityError(userError.PASSWORD_REQURED);
       }
 
-      const hashedPassword = await this.cryptoService.hashPassword(user.password);
-
-      // if (user.profilePicture) {
-      //   const [profileUrl] = await this.storageRepository.uploadFiles(
-      //     user._id,
-      //     [user.profilePicture]
-      //   );
-      //   user.profilePicture = profileUrl.url;
-      // }
+      const hashedPassword = await this.cryptoService.hashPassword(
+        user.password
+      );
 
       user.password = hashedPassword;
     }
@@ -93,66 +66,33 @@ export class UserService implements IUserService {
     return newUser;
   }
 
-  async login(email: string, password: string): Promise<User> {
-    const user = await this.getOne({ email });
+  async update(userId: string, userUpdate: Partial<User>): Promise<User> {
+    const updatedUser = await this.userRepository.update(userId, userUpdate);
 
-    if (!user?._id) {
+    if (!updatedUser) {
       throw new NotFoundError(userError.NOT_FOUND);
     }
 
-    if (user.authType == AuthTypeEnum.GOOGLE || !user?.password) {
-      throw new NotFoundError(userError.LOGIN_GOOGLE);
-    }
-
-    const isValidPassword = this.cryptoService.verifyPassword(
-      password,
-      user.password
-    );
-
-    if (!isValidPassword) {
-      throw new UnauthorizedError(userError.INVALID_CREDENCIAL);
-    }
-
-    const userWithSession = await this.sessionService.(user);
-
-    return userWithSession;
+    return updatedUser;
   }
 
-  async update(
-    userId: string,
-    userUpdate: Partial<User>,
-    profilePicture: any
-  ): Promise<User> {
-    const user = await this.getOne({ userId });
+  async delete(query: UserQuery): Promise<User> {
+    const deletedUser = await this.userRepository.delete(query);
 
-    if (profilePicture) {
-      if (user?.profilePicture && isS3Url(user?.profilePicture)) {
-        await this.storageRepository.deleteFiles([user.profilePicture]);
-      }
-      if (!isValidUrl(profilePicture)) {
-        const [profileUrl] = await this.storageRepository.uploadFiles(
-          user._id,
-          [user.profilePicture]
-        );
-        user.profilePicture = profileUrl.url;
-      }
-      userUpdate.profilePicture = profilePicture;
+    if (!deletedUser) {
+      throw new NotFoundError(userError.NOT_FOUND);
     }
 
-    return this.userRepository.update(userId, userUpdate);
+    return deletedUser;
   }
 
-  delete({
-    email,
-    userId,
-  }: {
-    email?: string;
-    userId?: string;
-  }): Promise<User> {
-    return this.userRepository.delete({ email, userId });
-  }
+  async isUser(query: UserQuery): Promise<Boolean> {
+    const user = await this.getOne(query);
 
-  isUser(email: string, userName?: string): Promise<Boolean> {
-    return this.userRepository.checkUserExist(email, userName);
+    if (user) {
+      return true;
+    }
+
+    return false;
   }
 }

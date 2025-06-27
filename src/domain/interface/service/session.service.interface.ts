@@ -1,25 +1,19 @@
 import { Session } from "@/domain/entities/session.enttity";
 import { User } from "@/domain/entities/user.entity";
+import {
+  MultiSessionQuery,
+  SessionQuery,
+} from "@/domain/interface/types/session.types";
 import { Tokens } from "@/domain/interface/types/crypto.types";
 
 export interface ISessionService {
-  get({ userId }: { userId: string }): Promise<Session[]>;
+  get(query: MultiSessionQuery): Promise<Session[]>;
 
-  getOne({
-    userId,
-    token,
-  }: {
-    userId?: string;
-    token?: string;
-  }): Promise<Session>;
+  getOne(query: SessionQuery): Promise<Session>;
 
   create(user: User): Promise<Tokens>;
 
-  delete({
-    token,
-    userId,
-  }: {
-    token: string;
-    userId: string;
-  }): Promise<Session>;
+  refresh(query: SessionQuery): Promise<Tokens>;
+
+  delete(query: SessionQuery): Promise<void>;
 }

@@ -1,33 +1,11 @@
 import { User } from "@/domain/entities/user.entity";
 
 export interface IUserService {
-  get({
-    userIds,
-    excludeUserIds,
-    createdAt,
-  }: {
-    userIds?: Array<string>;
-    excludeUserIds?: Array<string>;
-    createdAt?: Date;
-  }): Promise<User[]>;
+  get(query: MultiUserQuery): Promise<User[]>;
 
-  getOne({
-    email,
-    userId,
-    userName,
-  }: {
-    email?: string;
-    userId?: string;
-    userName?: string;
-  }): Promise<User>;
+  getOne(query: UserQuery): Promise<User>;
 
   create(user: User, profilePicture?: any): Promise<User>;
-
-  login(email: string, password: string): Promise<User>;
-
-  oAuthSignUpOrLogin(user: User): Promise<User | null>;
-
-  logout(userId: string, sessionId: string): Promise<User>;
 
   update(
     userId: string,
@@ -35,7 +13,7 @@ export interface IUserService {
     profilePicture?: any
   ): Promise<User>;
 
-  delete({ email, userId }: { email?: string; userId?: string }): Promise<User>;
+  delete(query: UserQuery): Promise<User>;
 
-  isUser(email: string, userName?: string): Promise<Boolean>;
+  isUser(query: UserQuery): Promise<Boolean>;
 }
