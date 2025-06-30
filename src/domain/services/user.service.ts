@@ -12,11 +12,11 @@ import { IUserRepository } from "@/domain/interface/repositories/user.repository
 import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";
 
 @injectable()
-export class UserService implements IUserService {
+export default class UserService implements IUserService {
   constructor(
     @inject("UserRepository")
     private userRepository: IUserRepository,
-    @inject("UserRepository")
+    @inject("CryptoService")
     private cryptoService: ICryptoService
   ) {}
 
@@ -29,14 +29,8 @@ export class UserService implements IUserService {
     });
   }
 
-  async getOne(query: UserQuery): Promise<User> {
-    const user = await this.userRepository.getOne(query);
-
-    if (!user) {
-      throw new NotFoundError(userError.NOT_FOUND);
-    }
-
-    return user;
+  async getOne(query: UserQuery): Promise<User | null> {
+    return this.userRepository.getOne(query);
   }
 
   async create(user: User): Promise<User> {

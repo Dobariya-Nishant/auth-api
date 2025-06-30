@@ -11,16 +11,16 @@ import { ICryptoService } from "@/domain/interface/service/crypto.service.interf
 import { ISessionService } from "@/domain/interface/service/session.service.interface";
 import { Tokens } from "@/domain/interface/types/crypto.types";
 import { IAuthService } from "@/domain/interface/service/auth.service.interface";
-import { User } from "../entities/user.entity";
+import { User } from "@/domain/entities/user.entity";
 
 @injectable()
-export class AuthService implements IAuthService {
+export default class AuthService implements IAuthService {
   constructor(
     @inject("UserService")
     private userService: IUserService,
-    @inject("UserRepository")
+    @inject("CryptoService")
     private cryptoService: ICryptoService,
-    @inject("UserRepository")
+    @inject("SessionService")
     private sessionService: ISessionService
   ) {}
 
@@ -35,7 +35,7 @@ export class AuthService implements IAuthService {
       throw new NotFoundError(userError.LOGIN_GOOGLE);
     }
 
-    const isValidPassword = this.cryptoService.verifyPassword(
+    const isValidPassword = await this.cryptoService.verifyPassword(
       password,
       user.password
     );
@@ -49,27 +49,37 @@ export class AuthService implements IAuthService {
     return tokens;
   }
 
-  async SignUp(user: User): Promise<Tokens> {
-    const isUser = await this.userService.isUser({ email: user.email });
+  async signUp(user: User): Promise<Tokens> {
+    const newUser = await this.userService.create(user);
 
-    if (isUser) {
-      throw new ConflictError(userError.ALREADY_EXIST);
+    const tokens = await this.sessionService.create(newUser);
+
+    return tokens;
+  }
+
+  async refresh(userId: string, refreshToken: string): Promise<Tokens> {
+    const tokenObj = await this.sessionService.getOne({
+      userId: userId,
+      token: refreshToken,
+    });
+
+    if (!tokenObj) {
+      throw new UnauthorizedError(userError.UN_AUTHORIZED);
     }
 
-    if (user.authType == AuthTypeEnum.GOOGLE || !user?.password) {
-      throw new NotFoundError(userError.LOGIN_GOOGLE);
-    }
-
-    const isValidPassword = this.cryptoService.verifyPassword(
-      password,
-      user.password
+    const isTokenValid = this.cryptoService.verifySessionToken(
+      tokenObj.token,
+      true
     );
 
-    if (!isValidPassword) {
-      throw new UnauthorizedError(userError.INVALID_CREDENCIAL);
+    if (!isTokenValid) {
+      throw new UnauthorizedError(userError.UN_AUTHORIZED);
     }
 
-    const tokens = await this.sessionService.create(user);
+    const tokens = await this.sessionService.refresh({
+      userId: userId,
+      token: refreshToken,
+    });
 
     return tokens;
   }

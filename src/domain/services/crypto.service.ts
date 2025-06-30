@@ -3,9 +3,10 @@ import { sign, verify } from "jsonwebtoken";
 import { JwtPayload } from "@/domain/entities/jwt.entity";
 import { hash, compare } from "bcrypt";
 import { injectable } from "tsyringe";
+import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";
 
 @injectable()
-export class CryptoService {
+export default class CryptoService implements ICryptoService {
   constructor() {}
 
   generateSessionTokens(userId: string) {

@@ -9,7 +9,7 @@ import { getObjectId, getObjectIds } from "@/domain/helpers/objectId";
 import { userProjection } from "@/infrastructure/db/mongodb/repositories/projections/user.projection";
 
 @injectable()
-export class UserRepository implements IUserRepository {
+export default class UserRepository implements IUserRepository {
   get({ limit = 0, lastId, userIds }: MultiUserQuery): Promise<User[]> {
     const query: QueryOptions = {
       _id: {},
@@ -49,7 +49,7 @@ export class UserRepository implements IUserRepository {
       query["userName"] = userName;
     }
 
-    return UserModel.findOne(query, userProjection).lean();
+    return UserModel.findOne(query).lean();
   }
 
   create(user: User): Promise<User> {

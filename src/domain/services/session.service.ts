@@ -13,11 +13,11 @@ import { ICryptoService } from "@/domain/interface/service/crypto.service.interf
 import { getNewObjectId } from "@/domain/helpers/objectId";
 
 @injectable()
-export class SessionService implements ISessionService {
+export default class SessionService implements ISessionService {
   constructor(
     @inject("SessionRepository")
     private sessionRepository: ISessionRepository,
-    @inject("UserRepository")
+    @inject("CryptoService")
     private cryptoService: ICryptoService
   ) {}
 

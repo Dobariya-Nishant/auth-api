@@ -12,7 +12,7 @@ import { SessionModel } from "@/infrastructure/db/mongodb/models/session.model";
 import { Session } from "@/domain/entities/session.enttity";
 
 @injectable()
-export class SessionRepository implements ISessionRepository {
+export default class SessionRepository implements ISessionRepository {
   get({ limit = 0, userId, lastId }: MultiSessionQuery): Promise<Session[]> {
     const query: QueryOptions = {};
 

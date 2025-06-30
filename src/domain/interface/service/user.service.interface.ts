@@ -3,7 +3,7 @@ import { User } from "@/domain/entities/user.entity";
 export interface IUserService {
   get(query: MultiUserQuery): Promise<User[]>;
 
-  getOne(query: UserQuery): Promise<User>;
+  getOne(query: UserQuery): Promise<User | null>;
 
   create(user: User, profilePicture?: any): Promise<User>;
 

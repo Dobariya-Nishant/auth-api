@@ -23,11 +23,11 @@ export async function server() {
     },
   });
 
+  await app.register(fastifyMultipart, { attachFieldsToBody: "keyValues" });
+
   await app.register(fastifyEnv, envSchema);
 
   await app.register(ratelimiter, ratelimitConfig);
-
-  await app.register(fastifyMultipart);
 
   app.addHook("onRequest", checkApiKey);
 
