@@ -9,7 +9,7 @@ import {
 } from "@/domain/interface/types/session.types";
 import { ISessionRepository } from "@/domain/interface/repositories/session.repository.interface";
 import { SessionModel } from "@/infrastructure/db/mongodb/models/session.model";
-import { Session } from "@/domain/entities/session.enttity";
+import { Session } from "@/domain/entities/session.entity";
 
 @injectable()
 export default class SessionRepository implements ISessionRepository {

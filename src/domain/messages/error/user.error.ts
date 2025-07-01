@@ -10,4 +10,5 @@ export const userError = {
   PASSWORD_REQURED: "password is required",
   AUTH_TYPE_NOT_SUPPORTED: "authentication type is not supported",
   LOGIN_LOCAL: "email already exist login with email and password",
+  FORBIDDEN: "You do not have permission to access this resource.",
 } as const;

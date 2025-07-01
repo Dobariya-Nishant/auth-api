@@ -1,7 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { IUserService } from "@/domain/interface/service/user.service.interface";
 import {
-  ConflictError,
   NotFoundError,
   UnauthorizedError,
 } from "@/domain/errors/app-errors";

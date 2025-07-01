@@ -1,5 +1,5 @@
 import { MultiSessionQuery, SessionQuery } from "../types/session.types";
-import { Session } from "@/domain/entities/session.enttity";
+import { Session } from "@/domain/entities/session.entity";
 
 export interface ISessionRepository {
   get(query: MultiSessionQuery): Promise<Session[]>;

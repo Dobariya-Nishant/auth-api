@@ -1,4 +1,4 @@
-import { Session } from "@/domain/entities/session.enttity";
+import { Session } from "@/domain/entities/session.entity";
 import { User } from "@/domain/entities/user.entity";
 import {
   MultiSessionQuery,

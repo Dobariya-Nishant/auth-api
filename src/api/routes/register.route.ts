@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import authRouter from "./auth.route";
-import { cardRouter } from "./card.route";
+import { cardRouter } from "@/api/routes/card.route";
+import authRouter from "@/api/routes/auth.route";
 
 type FastifyRoute = (fastify: FastifyInstance) => Promise<void>;
 

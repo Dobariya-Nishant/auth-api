@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { Session } from "@/domain/entities/session.enttity";
+import { Session } from "@/domain/entities/session.entity";
 import { ISessionService } from "@/domain/interface/service/session.service.interface";
 import { ISessionRepository } from "@/domain/interface/repositories/session.repository.interface";
 import {

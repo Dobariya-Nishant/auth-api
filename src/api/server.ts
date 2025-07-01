@@ -1,16 +1,18 @@
 import fastifyMultipart from "@fastify/multipart";
 import Fastify from "fastify";
 import ratelimiter from "@fastify/rate-limit";
-import ratelimitConfig from "./config/ratelimit";
+import ratelimitConfig from "@/api/config/ratelimit";
 import fastifyEnv from "@fastify/env";
-import { envSchema } from "./config/env";
-import checkApiKey from "./middlewares/api_key.middleware";
-import { registerRoutes } from "./routes/register.route";
+import { envSchema } from "@/api/config/env";
+import { registerRoutes } from "@/api/routes/register.route";
 import { dbConnect } from "@/infrastructure/db/mongodb/client";
+import Middleware from "./middlewares/middleware";
+import { container } from "tsyringe";
 
 export let env: any;
 
 export async function server() {
+  const middleware = container.resolve<Middleware>("Middleware");
   const app = Fastify({
     logger: {
       transport: {
@@ -29,7 +31,9 @@ export async function server() {
 
   await app.register(ratelimiter, ratelimitConfig);
 
-  app.addHook("onRequest", checkApiKey);
+  app.addHook("onRequest", middleware.checkApiKey.bind(middleware));
+
+  app.addHook("onRequest", middleware.auth.bind(middleware));
 
   app.setNotFoundHandler(
     {
