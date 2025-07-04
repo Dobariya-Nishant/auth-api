@@ -47,4 +47,10 @@ export default async function authRouter(app: FastifyInstance) {
     url: "/logout",
     handler: authController.logout.bind(authController),
   });
+
+  app.route({
+    method: "POST",
+    url: "/refresh",
+    handler: authController.refresh.bind(authController),
+  });
 }

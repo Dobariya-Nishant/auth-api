@@ -24,15 +24,15 @@ export default class CardRepository {
     return CardModel.find(query).limit(limit).sort({ createdAt: -1 }).lean();
   }
 
-  async getOne({ cardId, name }: CardQuery): Promise<Card | null> {
-    if (!cardId && !name) {
+  async getOne({ id, name }: CardQuery): Promise<Card | null> {
+    if (!id && !name) {
       throw new UnprocessableEntityError(userError.GET_PROFILE_QUEARY);
     }
 
     const query: QueryOptions = {};
 
-    if (cardId) {
-      query["_id"] = getObjectId(cardId);
+    if (id) {
+      query["_id"] = getObjectId(id);
     }
 
     if (name) {
@@ -54,15 +54,15 @@ export default class CardRepository {
     }).lean();
   }
 
-  delete({ cardId, name }: CardQuery): Promise<Card | null> {
-    if (!cardId && !name) {
+  delete({ id, name }: CardQuery): Promise<Card | null> {
+    if (!id && !name) {
       throw new UnprocessableEntityError(userError.GET_PROFILE_QUEARY);
     }
 
     const query: QueryOptions = {};
 
-    if (cardId) {
-      query["_id"] = getObjectId(cardId);
+    if (id) {
+      query["_id"] = getObjectId(id);
     }
 
     if (name) {

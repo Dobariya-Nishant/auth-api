@@ -1,3 +1,3 @@
-import { server } from "./api/server";
+import { server } from "@/api/server";
 
 server();

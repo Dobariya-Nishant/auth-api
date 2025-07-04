@@ -1,30 +1,17 @@
-import { MediaTypeEnum } from "@/domain/enum/user.enum";
-
 export interface IStorageRepository {
-  fileUpload({
+  upload({
+    userId,
     fileName,
     fileContent,
     fileUrl,
-    contentType,
   }: {
+    userId: string;
     fileName: string;
     fileContent: any;
     fileUrl?: string;
-    contentType: string;
-  }): Promise<{
-    url: string;
-    type: MediaTypeEnum;
-  }>;
+  }): Promise<string>;
 
-  uploadFiles(
-    userId: string,
-    files: Array<any>
-  ): Promise<
-    {
-      url: string;
-      type: MediaTypeEnum;
-    }[]
-  >;
+  multiUpload(userId: string, files: Array<any>): Promise<Array<string>>;
 
   deleteFiles(urls: Array<string>): Promise<void>;
 }

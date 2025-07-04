@@ -4,7 +4,7 @@ import authRouter from "@/api/routes/auth.route";
 
 type FastifyRoute = (fastify: FastifyInstance) => Promise<void>;
 
-export function registerRoutes(app: FastifyInstance) {
+export function uploadRoutes(app: FastifyInstance) {
   const routes: { prefix: string; route: FastifyRoute }[] = [
     {
       prefix: "/auth",

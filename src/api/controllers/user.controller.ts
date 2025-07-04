@@ -8,7 +8,7 @@ export default class UserController {
 
   get(request: FastifyRequest, reply: FastifyReply) {}
 
-  getProfile(request: FastifyRequest, reply: FastifyReply) {}
+  getOne(request: FastifyRequest, reply: FastifyReply) {}
 
   delete(request: FastifyRequest, reply: FastifyReply) {}
 }

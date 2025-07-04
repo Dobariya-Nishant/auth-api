@@ -1,9 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { IUserService } from "@/domain/interface/service/user.service.interface";
-import {
-  NotFoundError,
-  UnauthorizedError,
-} from "@/domain/errors/app-errors";
+import { NotFoundError, UnauthorizedError } from "@/domain/errors/app-errors";
 import { userError } from "@/domain/messages/error/user.error";
 import { AuthTypeEnum } from "@/domain/enum/user.enum";
 import { ICryptoService } from "@/domain/interface/service/crypto.service.interface";

@@ -6,6 +6,6 @@ export type MultiCardQuery = {
 };
 
 export type CardQuery = {
-  cardId: string;
-  name: string;
+  id?: string;
+  name?: string;
 };

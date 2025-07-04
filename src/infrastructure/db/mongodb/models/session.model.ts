@@ -7,7 +7,7 @@ const sessionSchema: Schema = new Schema(
     token: { type: String, required: true },
     expiredAt: {
       type: Date,
-      default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   },
   { timestamps: true }

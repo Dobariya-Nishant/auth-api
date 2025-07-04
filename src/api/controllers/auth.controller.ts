@@ -28,9 +28,17 @@ export default class AuthController {
 
     const tokens = await this.authService.signUp(user);
 
-    reply.send({
+    reply.setCookie("refreshtoken", tokens.refreshtoken, {
+      path: "/auth",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      signed: true,
+    });
+
+    return reply.code(201).send({
       statusCode: 201,
-      data: tokens,
+      data: { accesstoken: tokens.accesstoken },
       message: userSuccess.SIGN_UP,
     });
   }
@@ -40,12 +48,59 @@ export default class AuthController {
     //@ts-ignore
     const tokens = await this.authService.login(body.email, body.password);
 
-    reply.send({
-      statusCode: 201,
+    reply.setCookie("refreshtoken", tokens.refreshtoken, {
+      path: "/auth",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      signed: true,
+    });
+
+    return reply.code(200).send({
+      statusCode: 200,
+      data: { accesstoken: tokens.accesstoken },
+      message: userSuccess.SIGN_UP,
+    });
+  }
+
+  logout(request: FastifyRequest, reply: FastifyReply) {
+    const token = request?.headers;
+    //@ts-ignore
+    const userId = request?.user?._id;
+    //@ts-ignore
+    const tokens = await this.authService.logout(userId, token);
+
+    reply.clearCookie("refreshtoken", {
+      path: "/auth",
+    });
+
+    return reply.code(200).send({
+      statusCode: 200,
       data: tokens,
       message: userSuccess.SIGN_UP,
     });
   }
 
-  logout(request: FastifyRequest, reply: FastifyReply) {}
+  refresh(request: FastifyRequest, reply: FastifyReply) {
+    //@ts-ignore
+    const refreshtoken = request.unsignCookie(request?.cookies?.refreshtoken);
+    //@ts-ignore
+    const userId = request?.user?._id;
+    //@ts-ignore
+    const tokens = await this.authService.refresh(userId, refreshtoken);
+
+    reply.setCookie("refreshtoken", tokens.refreshtoken, {
+      path: "/auth",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      signed: true,
+    });
+
+    return reply.code(200).send({
+      statusCode: 200,
+      data: { accesstoken: tokens.accesstoken },
+      message: userSuccess.SIGN_UP,
+    });
+  }
 }
